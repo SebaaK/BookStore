@@ -9,6 +9,9 @@ public class StringToBookStatusEnum implements Converter<String, BookStatus> {
 
     @Override
     public BookStatus convert(String source) {
+        if(source == null)
+            return null;
+
         try {
             return BookStatus.valueOf(source.toUpperCase());
         } catch (IllegalArgumentException e) {

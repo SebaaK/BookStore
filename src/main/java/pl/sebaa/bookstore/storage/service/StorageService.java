@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pl.sebaa.bookstore.book.model.Book;
-import pl.sebaa.bookstore.book.repository.BookRepository;
 import pl.sebaa.bookstore.book.service.BookService;
 import pl.sebaa.bookstore.storage.model.BookStatus;
 import pl.sebaa.bookstore.storage.model.Storage;
