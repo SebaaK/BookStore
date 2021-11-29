@@ -1,9 +1,6 @@
 package pl.sebaa.bookstore.reader.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import pl.sebaa.bookstore.borrowbook.model.BorrowBook;
 
 import javax.persistence.*;
@@ -35,15 +32,5 @@ public class Reader {
 
     public void addNewBorrowBook(BorrowBook book) {
         borrowBooks.add(book);
-    }
-
-    @Override
-    public String toString() {
-        return "Reader{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", createAccount=" + createAccount +
-                '}';
     }
 }

@@ -31,4 +31,13 @@ public class BorrowBook {
     void borrowDate() {
         borrowDate = LocalDate.now();
     }
+
+    @Override
+    public String toString() {
+        return "BorrowBook{" +
+                "id=" + id +
+                ", borrowDate=" + borrowDate +
+                ", returningDate=" + returningDate +
+                '}';
+    }
 }

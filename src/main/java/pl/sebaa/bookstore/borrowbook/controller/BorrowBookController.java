@@ -13,7 +13,7 @@ public class BorrowBookController {
 
     private final BorrowBookService service;
 
-    @PostMapping("/{idReader}/book/{idBook}")
+    @PostMapping(value = "/{idReader}/book/{idBook}")
     public ResponseEntity borrowBook(@PathVariable("idReader") Long idReader, @PathVariable("idBook") Long idBook) {
         if (idReader == null || idReader < 1)
             return new ResponseEntity(

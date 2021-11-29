@@ -16,7 +16,11 @@ public class BookService {
     }
 
     public Book getBookById(Long idBook) {
-        return repository.findById(idBook).get();
+        return repository.findById(idBook).orElseThrow();
+    }
+
+    public boolean bookNotFound(Long idBook) {
+        return repository.findById(idBook).isEmpty();
     }
 
 }

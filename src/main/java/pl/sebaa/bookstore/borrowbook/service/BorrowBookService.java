@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import pl.sebaa.bookstore.book.model.Book;
-import pl.sebaa.bookstore.book.service.BookService;
 import pl.sebaa.bookstore.borrowbook.mapper.BorrowBookMapper;
 import pl.sebaa.bookstore.borrowbook.model.BorrowBook;
 import pl.sebaa.bookstore.borrowbook.repository.BorrowBookRepository;
@@ -17,7 +15,6 @@ import pl.sebaa.bookstore.storage.service.StorageService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,15 +22,14 @@ import java.util.List;
 public class BorrowBookService {
 
     private final BorrowBookRepository repository;
-    private final BookService bookService;
     private final ReaderService readerService;
     private final StorageService storageService;
+    private final BorrowBookMapper mapper;
 
     public ResponseEntity borrowBook(Long idReader, Long idBook) {
         Reader reader = readerService.getReaderById(idReader);
-        Book book = bookService.getBookById(idBook);
 
-        List<Storage> booksByStatus = storageService.getCountBooksByStatus(book, BookStatus.FREE);
+        List<Storage> booksByStatus = storageService.getCountBooksByStatus(idBook, BookStatus.FREE);
         long countAvailableBooks = booksByStatus.size();
         if (countAvailableBooks < 1)
             return new ResponseEntity(
@@ -52,7 +48,7 @@ public class BorrowBookService {
         storage.setStatus(BookStatus.BORROW);
 
         return new ResponseEntity(
-                repository.save(borrowBook),
+                mapper.mapToBorrowBookDto(repository.save(borrowBook)),
                 HttpStatus.CREATED
         );
     }
@@ -74,7 +70,7 @@ public class BorrowBookService {
         reader.getBorrowBooks().remove(borrowBook);
 
         return new ResponseEntity(
-                borrowBook,
+                mapper.mapToBorrowBookDto(borrowBook),
                 HttpStatus.OK
         );
     }

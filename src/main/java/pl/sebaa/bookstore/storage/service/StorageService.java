@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pl.sebaa.bookstore.book.model.Book;
 import pl.sebaa.bookstore.book.repository.BookRepository;
+import pl.sebaa.bookstore.book.service.BookService;
 import pl.sebaa.bookstore.storage.model.BookStatus;
 import pl.sebaa.bookstore.storage.model.Storage;
 import pl.sebaa.bookstore.storage.repository.StorageRepository;
@@ -18,18 +19,14 @@ import java.util.List;
 public class StorageService {
 
     private final StorageRepository repository;
-    private final BookRepository bookRepository; //TODO: Usunąć to!
+    private final BookService bookService;
     private final StringToBookStatusEnum converter;
 
     public Storage newBookToStorage(Long idBook, String status) {
-        Book book = bookRepository.findById(idBook).get();
+        Book book = bookService.getBookById(idBook);
         BookStatus statusBook = converter.convert(status);
         Storage storage = new Storage(null, book, statusBook);
         return repository.save(storage);
-    }
-
-    public boolean bookNotFound(Long idBook) {
-        return bookRepository.findById(idBook).isEmpty();
     }
 
     public boolean storageNotFound(Long idStorage) {
@@ -57,7 +54,7 @@ public class StorageService {
     public ResponseEntity bookAndStatusIsOk(Long idBook, String status) {
         if(!statusIsOk(status))
             return new ResponseEntity<>("This status is not find on system.", HttpStatus.BAD_REQUEST);
-        if(idBook < 1 || bookNotFound(idBook))
+        if(idBook < 1 || bookService.bookNotFound(idBook))
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return null;
     }
@@ -68,7 +65,8 @@ public class StorageService {
         return repository.save(selectedStorage);
     }
 
-    public List<Storage> getCountBooksByStatus(Book book, BookStatus status) {
-        return repository.countAvailableBooks(book, status);
+    public List<Storage> getCountBooksByStatus(Long idBook, BookStatus status) {
+        Book bookById = bookService.getBookById(idBook);
+        return repository.countAvailableBooks(bookById, status);
     }
 }

@@ -7,10 +7,19 @@ import pl.sebaa.bookstore.reader.model.Reader;
 @Service
 public class ReaderMapper {
 
-    public static Reader mapToReader(final ReaderDto readerDto) {
+    public Reader mapToReader(final ReaderDto readerDto) {
         return new Reader().builder()
                 .name(readerDto.getName())
                 .lastname(readerDto.getLastname())
                 .build();
+    }
+
+    public ReaderDto mapToReaderDto(final Reader reader) {
+        return new ReaderDto(
+                reader.getId(),
+                reader.getName(),
+                reader.getLastname(),
+                reader.getCreateAccount()
+        );
     }
 }
