@@ -10,6 +10,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +23,7 @@ public class Reader {
     private String lastname;
     @Column(name = "create_account")
     private LocalDateTime createAccount;
-    @OneToMany(mappedBy = "reader")
+    @OneToMany(mappedBy = "reader", cascade = CascadeType.ALL)
     private List<BorrowBook> borrowBooks = new ArrayList<>();
 
     @PrePersist

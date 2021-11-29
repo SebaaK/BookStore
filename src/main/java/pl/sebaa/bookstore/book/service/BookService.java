@@ -20,7 +20,7 @@ public class BookService {
     }
 
     public boolean bookNotFound(Long idBook) {
-        return repository.findById(idBook).isEmpty();
+        return repository.existsById(idBook);
     }
 
 }

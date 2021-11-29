@@ -22,7 +22,7 @@ CREATE TABLE `storage`
     `id`      SERIAL PRIMARY KEY,
     `book_id` BIGINT UNSIGNED NOT NULL,
     `status`  VARCHAR(15)     NOT NULL,
-    FOREIGN KEY (`book_id`) REFERENCES book (`id`)
+    FOREIGN KEY (`book_id`) REFERENCES book (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS `borrow_book`;
@@ -33,6 +33,6 @@ CREATE TABLE `borrow_book`
     `reader_id`      BIGINT UNSIGNED NOT NULL,
     `borrow_date`    DATETIME        NOT NULL,
     `returning_date` DATETIME        NULL,
-    FOREIGN KEY (`storage_id`) REFERENCES storage (`id`),
-    FOREIGN KEY (`reader_id`) REFERENCES reader (`id`)
+    FOREIGN KEY (`storage_id`) REFERENCES storage (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`reader_id`) REFERENCES reader (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );

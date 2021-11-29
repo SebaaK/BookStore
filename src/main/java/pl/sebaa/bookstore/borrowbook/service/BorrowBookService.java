@@ -26,6 +26,7 @@ public class BorrowBookService {
     private final StorageService storageService;
     private final BorrowBookMapper mapper;
 
+    @Transactional
     public ResponseEntity borrowBook(Long idReader, Long idBook) {
         Reader reader = readerService.getReaderById(idReader);
 
@@ -62,7 +63,7 @@ public class BorrowBookService {
         }
 
         BorrowBook borrowBook = reader.getBorrowBooks().stream()
-                .filter(book1 -> book1.getId() == idBook)
+                .filter(book1 -> book1.getStorage().getId() == idBook)
                 .findFirst().orElseThrow();
 
         borrowBook.setReturningDate(LocalDate.now());
