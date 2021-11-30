@@ -21,15 +21,15 @@ public class StorageService {
     private final BookService bookService;
     private final StringToBookStatusEnum converter;
 
-    public Storage newBookToStorage(Long idBook, String status) {
+    public Storage newBookToStorage(Long idBook) {
         Book book = bookService.getBookById(idBook);
-        BookStatus statusBook = converter.convert(status);
+        BookStatus statusBook = BookStatus.FREE;
         Storage storage = new Storage(null, book, statusBook);
         return repository.save(storage);
     }
 
     public boolean storageNotFound(Long idStorage) {
-        return repository.findById(idStorage).isEmpty();
+        return !repository.existsById(idStorage);
     }
 
     public boolean statusIsOk(String status) {
@@ -44,27 +44,25 @@ public class StorageService {
 
     public ResponseEntity storeAndStatusIsOk(Long idStorage, String status) {
         if(!statusIsOk(status))
-            return new ResponseEntity<>("This status is not find on system.", HttpStatus.OK); //TODO: Za dużo razy wywołanie
+            return new ResponseEntity<>("This status is not find on system.", HttpStatus.NOT_ACCEPTABLE); //TODO: Za dużo razy wywołanie
         if(idStorage < 1 || storageNotFound(idStorage))
             return new ResponseEntity<>("This storage is not exist.", HttpStatus.NOT_FOUND);
         return null;
     }
 
-    public ResponseEntity bookAndStatusIsOk(Long idBook, String status) {
-        if(!statusIsOk(status))
-            return new ResponseEntity<>("This status is not find on system.", HttpStatus.BAD_REQUEST);
-        if(idBook < 1 || bookService.bookNotFound(idBook))
+    public ResponseEntity bookIsOk(Long idBook) {
+        if(idBook < 1 || !bookService.bookNotFound(idBook))
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return null;
     }
 
     public Storage changeStatus(Long idStorage, String status) {
-        Storage selectedStorage = repository.findById(idStorage).get();
+        Storage selectedStorage = repository.findById(idStorage).orElseThrow();
         selectedStorage.setStatus(converter.convert(status));
         return repository.save(selectedStorage);
     }
 
-    public List<Storage> getCountBooksByStatus(Long idBook, BookStatus status) {
+    public List<Storage> getAvailableBooksList(Long idBook, BookStatus status) {
         Book bookById = bookService.getBookById(idBook);
         return repository.countAvailableBooks(bookById, status);
     }

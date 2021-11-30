@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.sebaa.bookstore.book.model.Book;
-import pl.sebaa.bookstore.book.service.BookService;
 import pl.sebaa.bookstore.storage.mapper.StorageMapper;
 import pl.sebaa.bookstore.storage.model.BookStatus;
 import pl.sebaa.bookstore.storage.service.StorageService;
@@ -19,13 +17,13 @@ public class StorageController {
     private final StorageMapper mapper;
 
     @PostMapping(value = "/addBook/{idBook}" )
-    public ResponseEntity andNewBookToStorage(@PathVariable("idBook") long idBook, @RequestParam("status") String status) {
-        ResponseEntity response = service.bookAndStatusIsOk(idBook, status);
+    public ResponseEntity andNewBookToStorage(@PathVariable("idBook") long idBook) {
+        ResponseEntity response = service.bookIsOk(idBook);
         if (response != null)
             return response;
 
         return new ResponseEntity(
-                mapper.mapToStorageDto(service.newBookToStorage(idBook, status)),
+                mapper.mapToStorageDto(service.newBookToStorage(idBook)),
                 HttpStatus.CREATED
         );
     }
@@ -52,7 +50,7 @@ public class StorageController {
                 return new ResponseEntity("This status is not find on system.", HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity(
-                service.getCountBooksByStatus(idBook, findStatus).size(),
+                service.getAvailableBooksList(idBook, findStatus).size(),
                 HttpStatus.OK
         );
     }

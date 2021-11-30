@@ -30,7 +30,7 @@ public class BorrowBookService {
     public ResponseEntity borrowBook(Long idReader, Long idBook) {
         Reader reader = readerService.getReaderById(idReader);
 
-        List<Storage> booksByStatus = storageService.getCountBooksByStatus(idBook, BookStatus.FREE);
+        List<Storage> booksByStatus = storageService.getAvailableBooksList(idBook, BookStatus.FREE);
         long countAvailableBooks = booksByStatus.size();
         if (countAvailableBooks < 1)
             return new ResponseEntity(
