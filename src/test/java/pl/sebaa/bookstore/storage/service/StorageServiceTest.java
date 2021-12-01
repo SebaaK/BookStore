@@ -118,10 +118,10 @@ class StorageServiceTest {
         storage = repository.save(storage);
 
         //when
-        ResponseEntity result = service.storeAndStatusIsOk(storage.getId(), "FREE");
+        boolean result = service.storeAndStatusIsOk(storage.getId(), "FREE");
 
         //then
-        assertNull(result);
+        assertTrue(result);
 
         //clear
         repository.deleteById(storage.getId());
@@ -134,11 +134,10 @@ class StorageServiceTest {
         storage = repository.save(storage);
 
         //when
-        ResponseEntity result = service.storeAndStatusIsOk(storage.getId(), "bad-status");
+        boolean result = service.storeAndStatusIsOk(storage.getId(), "bad-status");
 
         //then
-        assertEquals("This status is not find on system.", result.getBody());
-        assertEquals(HttpStatus.NOT_ACCEPTABLE, result.getStatusCode());
+        assertFalse(result);
 
         //clear
         repository.deleteById(storage.getId());
@@ -148,21 +147,20 @@ class StorageServiceTest {
     void storageIsFailedInCheckingStatus() {
         //given
         //when
-        ResponseEntity result = service.storeAndStatusIsOk(Long.MAX_VALUE, "free");
+        boolean result = service.storeAndStatusIsOk(Long.MAX_VALUE, "free");
 
         //then
-        assertEquals("This storage is not exist.", result.getBody());
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertFalse(result);
     }
 
     @Test
     void bookIsOk() {
         //given
         //when
-        ResponseEntity result = service.bookIsOk(book.getId());
+        boolean result = service.bookIsOk(book.getId());
 
         //then
-        assertNull(result);
+        assertTrue(result);
     }
 
     @Test
@@ -170,10 +168,10 @@ class StorageServiceTest {
     void bookIsNotFound() {
         //given
         //when
-        ResponseEntity result = service.bookIsOk(Long.MAX_VALUE);
+        boolean result = service.bookIsOk(Long.MAX_VALUE);
 
         //then
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertFalse(result);
     }
 
     @Test
@@ -181,10 +179,10 @@ class StorageServiceTest {
     void idIsNotPositiveNumber() {
         //given
         //when
-        ResponseEntity result = service.bookIsOk(Long.MIN_VALUE);
+        boolean result = service.bookIsOk(Long.MIN_VALUE);
 
         //then
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertFalse(result);
     }
 
     @Test

@@ -18,9 +18,8 @@ public class StorageController {
 
     @PostMapping(value = "/addBook/{idBook}" )
     public ResponseEntity andNewBookToStorage(@PathVariable("idBook") long idBook) {
-        ResponseEntity response = service.bookIsOk(idBook);
-        if (response != null)
-            return response;
+        if (!service.bookIsOk(idBook))
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
 
         return new ResponseEntity(
                 mapper.mapToStorageDto(service.newBookToStorage(idBook)),
@@ -30,9 +29,11 @@ public class StorageController {
 
     @PutMapping(value = "/{idStorage}")
     public ResponseEntity changeStatusBookOnStorage(@PathVariable("idStorage") long idStorage, @RequestParam("status") String status) {
-        ResponseEntity response = service.storeAndStatusIsOk(idStorage, status);
-        if (response != null)
-            return response;
+        if (!service.storeAndStatusIsOk(idStorage, status))
+            return new ResponseEntity(
+                    "Check idStorage and/or status and try again",
+                    HttpStatus.NOT_FOUND
+            );
 
         return new ResponseEntity(
                 mapper.mapToStorageDto(service.changeStatus(idStorage, status)),

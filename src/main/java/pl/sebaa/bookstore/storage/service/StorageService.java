@@ -42,18 +42,16 @@ public class StorageService {
             return converter.convert(status);
     }
 
-    public ResponseEntity storeAndStatusIsOk(Long idStorage, String status) {
-        if(!statusIsOk(status))
-            return new ResponseEntity<>("This status is not find on system.", HttpStatus.NOT_ACCEPTABLE); //TODO: Za dużo razy wywołanie
-        if(idStorage < 1 || storageNotFound(idStorage))
-            return new ResponseEntity<>("This storage is not exist.", HttpStatus.NOT_FOUND);
-        return null;
+    public boolean storeAndStatusIsOk(Long idStorage, String status) {
+        if(!statusIsOk(status) || (idStorage < 1 || storageNotFound(idStorage)))
+            return false;
+        return true;
     }
 
-    public ResponseEntity bookIsOk(Long idBook) {
+    public boolean bookIsOk(Long idBook) {
         if(idBook < 1 || !bookService.bookNotFound(idBook))
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        return null;
+            return false;
+        return true;
     }
 
     public Storage changeStatus(Long idStorage, String status) {

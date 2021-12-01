@@ -27,16 +27,13 @@ public class BorrowBookService {
     private final BorrowBookMapper mapper;
 
     @Transactional
-    public ResponseEntity borrowBook(Long idReader, Long idBook) {
+    public BorrowBook borrowBook(Long idReader, Long idBook) {
         Reader reader = readerService.getReaderById(idReader);
 
         List<Storage> booksByStatus = storageService.getAvailableBooksList(idBook, BookStatus.FREE);
         long countAvailableBooks = booksByStatus.size();
         if (countAvailableBooks < 1)
-            return new ResponseEntity(
-                    "This book is not available.",
-                    HttpStatus.PARTIAL_CONTENT
-            );
+            throw new IllegalArgumentException("Not found available books");
 
         Storage storage = booksByStatus.get(0);
 
@@ -48,14 +45,11 @@ public class BorrowBookService {
 
         storage.setStatus(BookStatus.BORROW);
 
-        return new ResponseEntity(
-                mapper.mapToBorrowBookDto(repository.save(borrowBook)),
-                HttpStatus.CREATED
-        );
+        return repository.save(borrowBook);
     }
 
     @Transactional
-    public ResponseEntity returnBook(Long idReader, Long idBook, String status) {
+    public BorrowBook returnBook(Long idReader, Long idBook, String status) {
         Reader reader = readerService.getReaderById(idReader);
         BookStatus bookStatus = BookStatus.FREE;
         if (status != null) {
@@ -70,9 +64,6 @@ public class BorrowBookService {
         borrowBook.getStorage().setStatus(bookStatus);
         reader.getBorrowBooks().remove(borrowBook);
 
-        return new ResponseEntity(
-                mapper.mapToBorrowBookDto(borrowBook),
-                HttpStatus.OK
-        );
+        return borrowBook;
     }
 }

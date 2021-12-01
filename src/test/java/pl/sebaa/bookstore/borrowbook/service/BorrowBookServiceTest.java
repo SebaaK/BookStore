@@ -6,11 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import pl.sebaa.bookstore.book.model.Book;
 import pl.sebaa.bookstore.book.repository.BookRepository;
-import pl.sebaa.bookstore.borrowbook.domain.BorrowBookDto;
 import pl.sebaa.bookstore.borrowbook.model.BorrowBook;
 import pl.sebaa.bookstore.borrowbook.repository.BorrowBookRepository;
 import pl.sebaa.bookstore.reader.model.Reader;
@@ -23,8 +20,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -66,16 +62,32 @@ class BorrowBookServiceTest {
     }
 
     @Test
+    @Transactional
     void borrowBook() {
         //given
+        temporaryReader.getBorrowBooks().clear();
+        temporaryReader = readerRepository.save(temporaryReader);
+
         //when
-        ResponseEntity responseEntity = service.borrowBook(temporaryReader.getId(), temporaryBook.getId());
-        BorrowBookDto bodyResponse = (BorrowBookDto) responseEntity.getBody();
+        BorrowBook borrowBook = service.borrowBook(temporaryReader.getId(), temporaryBook.getId());
+        Storage resultStorage = borrowBook.getStorage();
+        Reader resultReader = borrowBook.getReader();
 
         //then
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-        assertEquals(temporaryReader.getId(), bodyResponse.getIdReader());
-        assertEquals(temporaryStorage.getId(), bodyResponse.getIdStorage());
+        assertNotNull(borrowBook.getId());
+        assertAll("Checking Storage object",
+                () -> assertEquals(temporaryStorage.getId(), resultStorage.getId()),
+                () -> assertEquals(BookStatus.BORROW, resultStorage.getStatus())
+        );
+        assertAll("Checking Reader object",
+                () -> assertEquals(temporaryReader.getId(), resultReader.getId()),
+                () -> assertEquals(temporaryReader.getName(), resultReader.getName()),
+                () -> assertEquals(temporaryReader.getLastname(), resultReader.getLastname()),
+                () -> assertNotNull(resultReader.getCreateAccount()),
+                () -> assertEquals(1, resultReader.getBorrowBooks().size())
+        );
+        assertNotNull(borrowBook.getBorrowDate());
+        assertNull(borrowBook.getReturningDate());
     }
 
     @Test
@@ -84,11 +96,8 @@ class BorrowBookServiceTest {
         temporaryStorage.setStatus(BookStatus.BORROW);
         storageRepository.save(temporaryStorage);
         //when
-        ResponseEntity responseEntity = service.borrowBook(temporaryReader.getId(), temporaryBook.getId());
-
         //then
-        assertEquals(HttpStatus.PARTIAL_CONTENT, responseEntity.getStatusCode());
-        assertEquals("This book is not available.",  responseEntity.getBody());
+        assertThrows(IllegalArgumentException.class, () -> service.borrowBook(temporaryReader.getId(), temporaryBook.getId()));
     }
 
     @Test
@@ -104,13 +113,24 @@ class BorrowBookServiceTest {
         temporaryStorage = storageRepository.save(temporaryStorage);
 
         //when
-        ResponseEntity responseEntity = service.returnBook(temporaryReader.getId(), temporaryBook.getId(), null);
-        BorrowBookDto body = (BorrowBookDto) responseEntity.getBody();
+        BorrowBook resultBorrowBook = service.returnBook(temporaryReader.getId(), temporaryBook.getId(), null);
+        Storage resultStorage = resultBorrowBook.getStorage();
+        Reader resultReader = resultBorrowBook.getReader();
 
         //then
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(temporaryReader.getId(), body.getIdReader());
-        assertEquals(temporaryStorage.getId(), body.getIdStorage());
-        assertNotNull(body.getReturningDate());
+        assertNotNull(resultBorrowBook.getId());
+        assertAll("Checking Storage object",
+                () -> assertEquals(temporaryStorage.getId(), resultStorage.getId()),
+                () -> assertEquals(BookStatus.FREE, resultStorage.getStatus())
+        );
+        assertAll("Checking Reader object",
+                () -> assertEquals(temporaryReader.getId(), resultReader.getId()),
+                () -> assertEquals(temporaryReader.getName(), resultReader.getName()),
+                () -> assertEquals(temporaryReader.getLastname(), resultReader.getLastname()),
+                () -> assertNotNull(resultReader.getCreateAccount()),
+                () -> assertEquals(0, resultReader.getBorrowBooks().size())
+        );
+        assertNotNull(resultBorrowBook.getBorrowDate());
+        assertNotNull(resultBorrowBook.getReturningDate());
     }
 }

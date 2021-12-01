@@ -21,7 +21,7 @@ public class BorrowBook {
     @ManyToOne
     @JoinColumn(name = "storage_id")
     private Storage storage;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reader_id")
     private Reader reader;
     private LocalDate borrowDate;
